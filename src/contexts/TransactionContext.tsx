@@ -10,7 +10,8 @@ interface TransactionsProps {
 }
 
 interface ContextProps {
-  transactions: TransactionsProps[]
+  transactions: TransactionsProps[];
+  getTransactions: (query?: string) => Promise<void>
 }
 
 interface ProviderProps {
@@ -23,8 +24,14 @@ export const TransactionsProvider = ({children}: ProviderProps) => {
   const [transactions, setTransactions] = useState<TransactionsProps[]>([])
   console.log(transactions)
 
-  async function getTransactions() {
-    const response = await fetch('http://localhost:3333/transactions')
+  async function getTransactions(query?: string) {
+    const url = new URL('http://localhost:3333/transactions')
+
+    if(query) {
+      url.searchParams.append('q', query)
+    }
+
+    const response = await fetch(url)
     const data = await response.json();
     setTransactions(data)
   }
@@ -35,7 +42,8 @@ export const TransactionsProvider = ({children}: ProviderProps) => {
 
   return (
     <TransactionsContext.Provider value={{
-      transactions
+      transactions,
+      getTransactions
     }}>
       {children}
     </TransactionsContext.Provider>
